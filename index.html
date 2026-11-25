@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DashTube 2016</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a cheerful video site that is honest about being a time capsule
+   IDEA: a video site frozen on Nov 23, 2016, the last day before the cutoff
+   PICTURE: every thumbnail drawn as a tiny level (sky tiles, ground, spikes, a cube), plus an uploads-per-month strip
+   COLOUR and TYPE: white or near-black ground, ink text, level colours in the thumbnails, one lime accent; Lilita One + Roboto
+   LAYOUT: sticky header with search, side nav, chip row, grid; watch page with player, details and up next */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0f0f0f);--ink:light-dark(#0f0f0f,#f1f1f1);--mut:light-dark(#5c5c5c,#aaa);--line:light-dark(#e3e3e3,#2b2b2b);--chip:light-dark(#f2f2f2,#272727);--chip2:light-dark(#e4e4e4,#3a3a3a);--acc:#9be22d;--hdr:light-dark(rgba(255,255,255,.95),rgba(15,15,15,.95))}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Roboto,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+header{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:auto minmax(0,620px) auto;justify-content:space-between;align-items:center;gap:16px;height:60px;padding:0 16px;background:var(--hdr);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:4px}
+.ib{width:44px;height:44px;border:0;background:none;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.ib:hover{background:var(--chip)}
+.logo{display:flex;align-items:center;gap:8px;font-size:21px;letter-spacing:-.4px;padding:6px 8px;border-radius:10px;white-space:nowrap}
+.logo b{font-weight:900}
+.logo small{font-size:12px;color:var(--mut);font-weight:500;letter-spacing:0;align-self:flex-start;margin-top:2px}
+.search{display:flex;height:44px}
+.search input{flex:1;border:1px solid var(--line);border-right:0;border-radius:22px 0 0 22px;padding:0 18px;background:var(--bg);font-size:16px}
+.search button{flex:none;width:64px;border:1px solid var(--line);border-radius:0 22px 22px 0;background:var(--chip);cursor:pointer;display:grid;place-items:center}
+.search button:hover{background:var(--chip2)}
+.cap{display:flex;align-items:center;gap:9px;font-size:14px;padding:0 14px;height:36px;border-radius:18px;background:var(--chip);white-space:nowrap}
+.cap i{width:9px;height:9px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(155,226,45,.3)}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr)}
+body.mini .wrap{grid-template-columns:minmax(0,1fr)}body.mini nav.side{display:none}
+nav.side{position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;padding:12px;scrollbar-width:thin}
+.nv{display:flex;align-items:center;gap:18px;min-height:44px;padding:0 12px;border-radius:10px;font-size:15px}
+.nv:hover{background:var(--chip)}.nv.on{background:var(--chip);font-weight:700}
+.nv svg{flex:none}.nv .n{margin-left:auto;color:var(--mut);font-size:13px;font-weight:400}
+.nv .av{width:24px;height:24px;font-size:12px}
+.side h3{font-size:16px;font-weight:500;margin:4px 12px 6px}
+.side hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+.scrim{display:none}
+main{padding:0 24px 40px}
+.capsule{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:32px;align-items:end;padding:24px 26px;margin:18px 0 6px;border-radius:18px;background:var(--chip)}
+.capsule h1,.ph h1,.chhead h1{font:400 clamp(30px,3.6vw,44px)/1.05 "Lilita One",Roboto,sans-serif;margin:0 0 10px;text-wrap:balance}
+.capsule p,.ph p,.chhead p{margin:0 0 16px;color:var(--mut);max-width:62ch}
+.tlh{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--mut);margin-bottom:8px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:110px}
+.bar{flex:1;background:var(--ink);opacity:.82;border-radius:3px 3px 0 0}
+.bar.z{opacity:.14}.bar:hover{background:var(--acc);opacity:1}
+.cut{flex:none;width:2px;align-self:stretch;margin-left:5px;background:repeating-linear-gradient(var(--ink) 0 5px,transparent 5px 9px)}
+.yrs{display:flex;gap:3px;font-size:13px;color:var(--mut);margin-top:6px;height:20px}
+.yrs span{flex:1;position:relative}.yrs em{position:absolute;left:0;font-style:normal;white-space:nowrap}
+.yrs .cs2{flex:none;width:7px}
+.ph{padding:22px 0 2px}.ph p{margin-bottom:8px}
+.chips{position:sticky;top:60px;z-index:10;background:var(--bg);display:flex;gap:10px;align-items:center;padding:12px 0;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;height:40px;padding:0 14px;border-radius:10px;border:0;background:var(--chip);cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
+.chip:hover{background:var(--chip2)}.chip.on{background:var(--ink);color:var(--bg)}
+.sep{flex:none;width:1px;height:24px;background:var(--line)}
+.sort{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:14px;cursor:pointer}
+.rh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:2px 0 8px;font-size:15px;color:var(--mut)}
+.rg{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--ink)}.sl{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:34px 16px;padding-top:8px}
+.card{display:flex;flex-direction:column;gap:12px}
+.th{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#222}
+.th svg{position:absolute;inset:0;width:100%;height:100%;display:block;transition:transform .25s}
+.th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.card:hover .th svg,.card:hover .th img{transform:scale(1.04)}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.82);color:#fff;font-size:12.5px;font-weight:500;padding:1px 5px;border-radius:4px;font-variant-numeric:tabular-nums}
+.sv{position:absolute;left:8px;bottom:8px;background:var(--acc);color:#0f0f0f;font-size:12.5px;font-weight:700;padding:1px 7px;border-radius:4px}
+.row{display:flex;gap:12px}
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff}
+.ti{font-weight:500;font-size:16px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 4px;overflow-wrap:anywhere}
+.meta{font-size:14px;color:var(--mut);line-height:1.45}
+.nw{white-space:nowrap}
+.moreb{display:flex;justify-content:center;padding:28px 0 0}
+.empty{text-align:center;padding:70px 16px;color:var(--mut)}.empty .big{font-size:20px;font-weight:500;color:var(--ink);margin:0 0 6px}
+.watch{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;padding-top:24px}
+.player{position:relative;display:block;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.player svg,.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.cm{margin-top:26px}.cm h2{font-size:18px;font-weight:700;margin:0 0 12px}
+.cmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.ct{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;margin-bottom:18px}
+.ct img,.ct .av{width:40px;height:40px;border-radius:50%;background:var(--chip)}
+.ct .who{font-size:13px;font-weight:500}.ct .who span{color:var(--mut);font-weight:400}
+.ct p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.45}
+.ct .lk{font-size:13px;color:var(--mut)}
+.note{background:var(--chip);border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:14px}.note p{margin:6px 0}
+.note form{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.note input{flex:1;min-width:200px;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--bg);font-size:16px}
+.player .sh{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0) 55%,rgba(0,0,0,.72))}
+.play{position:absolute;left:50%;top:50%;width:86px;height:86px;margin:-43px 0 0 -43px;border-radius:50%;background:#fff;color:#0f0f0f;display:grid;place-items:center;box-shadow:0 8px 28px rgba(0,0,0,.35);transition:transform .15s}
+.player:hover .play{transform:scale(1.08)}
+.pcap{position:absolute;left:16px;right:16px;bottom:12px;color:#fff;font-size:14px;display:flex;justify-content:space-between;gap:12px}
+h1.vt{font-size:21px;font-weight:700;line-height:1.3;margin:14px 0 12px;overflow-wrap:anywhere}
+.chan{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.chan .av{width:42px;height:42px}.cn{font-weight:500}.cs{font-size:13px;color:var(--mut)}
+.acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.pill{height:40px;padding:0 16px;border-radius:20px;border:0;background:var(--chip);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.pill:hover{background:var(--chip2)}.pill.dark{background:var(--ink);color:var(--bg)}.pill.on{background:var(--acc);color:#0f0f0f}
+.info{background:var(--chip);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:14px}
+.info .k{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px 18px;margin:12px 0}
+.info .k span{display:block;color:var(--mut);font-size:13px}
+.info u,.foot u{text-underline-offset:2px}
+.next h2{font-size:16px;font-weight:500;margin:0 0 12px}
+.mini{display:grid;grid-template-columns:168px minmax(0,1fr);gap:10px;margin-bottom:10px;border-radius:10px}
+.mini .th{border-radius:8px}.mini .ti{font-size:14px}.mini .meta{font-size:13px}
+.list{max-width:920px;padding-top:10px}.list .mini{grid-template-columns:246px minmax(0,1fr);gap:16px;margin-bottom:14px}.list .ti{font-size:16px}
+.chhead{display:flex;align-items:center;gap:20px;padding:26px 0 18px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.chhead .av{width:80px;height:80px;font-size:32px}.chhead p{margin:0}
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--mut);font-size:13px;max-width:86ch}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;transition:.2s;pointer-events:none;z-index:60;max-width:calc(100vw - 32px);overflow-wrap:anywhere}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1180px){.watch{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1000px){.wrap{grid-template-columns:minmax(0,1fr)}
+ nav.side{position:fixed;left:0;top:0;height:100%;width:270px;z-index:50;background:var(--bg);transform:translateX(-104%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.3)}
+ body.dr nav.side{transform:none}body.dr .scrim{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.45)}
+ body.mini nav.side{display:block}}
+@media(max-width:860px){header .right{display:none}header{grid-template-columns:auto minmax(0,1fr)}.capsule{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){header{gap:6px;padding:0 8px}.logo{font-size:19px;padding:6px 4px}.logo small{display:none}.search button{width:48px}.search input{padding:0 14px}
+ main{padding:0 12px 32px}.capsule{padding:18px;gap:18px}.grid{grid-template-columns:minmax(0,1fr)}
+ .mini,.list .mini{grid-template-columns:140px minmax(0,1fr);gap:10px}.list .ti{font-size:14px}.acts{margin-left:0}.chhead .av{width:56px;height:56px;font-size:24px}}
+@media(max-width:400px){.logo span{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">
+  <button class="ib" data-act="menu" aria-label="Show or hide navigation"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="logo" href="#" aria-label="DashTube 2016 home"><svg width="30" height="28" viewBox="0 0 30 28" aria-hidden="true"><rect x="2" y="3" width="17" height="17" rx="2" fill="#9be22d" stroke="currentColor" stroke-width="2"/><rect x="7" y="8" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19 25l4.5-8.5L28 25z" fill="currentColor"/></svg><span>Dash<b>Tube</b></span><small>2016</small></a>
+ </div>
+ <form class="search" role="search" id="sf">
+  <input id="q" type="search" placeholder="Search Geometry Dash videos, 2013–2016" aria-label="Search videos" autocomplete="off">
+  <button aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></button>
+ </form>
+ <div class="right"><span class="cap" title="Nothing uploaded on or after Nov 24, 2016 is listed"><i></i>Frozen at Nov 23, 2016</span></div>
+</header>
+<div class="wrap">
+ <nav class="side" id="side" aria-label="Sections">
+  <a class="nv" data-k="home" href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Home</a>
+  <a class="nv" data-k="official" href="#official"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Official</a>
+  <a class="nv" data-k="levels" href="#levels"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4 2.5 4H5"/></svg>Main levels</a>
+  <a class="nv" data-k="demons" href="#demons"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 20L12 4l9 16z"/></svg>Demons &amp; verifications</a>
+  <a class="nv" data-k="creators" href="#creators"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20l4.5-1L19 8.5 15.5 5 5 15.5z"/></svg>Creators</a>
+  <a class="nv" data-k="community" href="#community"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.5 2.4 2.2 4 2.2s3-.7 4-2.2M9 9.5h.01M15 9.5h.01"/></svg>Community</a>
+  <a class="nv" data-k="guides" href="#guides"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1zM12 6v14"/></svg>Guides &amp; lists</a>
+  <a class="nv" data-k="more" href="#more"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>Gameplay &amp; more</a>
+  <hr>
+  <a class="nv" data-k="later" href="#later"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Watch later<span class="n" id="nlater"></span></a>
+  <a class="nv" data-k="history" href="#history"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5v4.5H8M12 8v4l3 2"/></svg>History</a>
+  <hr>
+  <h3>Channels</h3>
+  <div id="chans"></div>
+ </nav>
+ <div class="scrim" data-act="close"></div>
+ <main id="app"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+{
+const EMBED = true; // true only in the self-hosted build: real YouTube player + comments
+const CUTOFF = Date.UTC(2016, 10, 24, 5, 0, 0); // Nov 24, 2016, 00:00 Eastern. Anything at or after this is never shown.
+const CATS = [
+ ['official', 'Official', 'Uploaded by RobTopGames, the studio behind Geometry Dash.'],
+ ['levels', 'Main levels', 'RobTop’s official levels, played through.'],
+ ['demons', 'Demons & verifications', 'Verifications, demon runs and other hard levels.'],
+ ['creators', 'Creators', 'Player-made levels, collab parts and previews.'],
+ ['community', 'Community', 'Animations, reactions, rage, music, glitches and more.'],
+ ['guides', 'Guides & lists', 'Tutorials, guides, speedruns, rankings, comparisons and secrets.'],
+ ['more', 'Gameplay & more', 'Other Geometry Dash videos: gameplay, updates, news and more.']
+];
+const CAT = Object.fromEntries(CATS.map(c => [c[0], c]));
+let V = [], BY = {};
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const app = document.getElementById('app'), qi = document.getElementById('q'), toastEl = document.getElementById('toast');
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const enc = s => s.replace(/-/g, '-h').replace(/_/g, '-u');
+const dec = s => s.replace(/-([hu])/g, (m, c) => c === 'h' ? '-' : '_');
+const one = x => { const s = (Math.floor(x * 10) / 10).toFixed(1); return s.endsWith('.0') ? s.slice(0, -2) : s; };
+const fmtV = n => n < 1e3 ? String(n) : n < 1e4 ? one(n / 1e3) + 'K' : n < 1e6 ? Math.floor(n / 1e3) + 'K' : n < 1e7 ? one(n / 1e6) + 'M' : Math.floor(n / 1e6) + 'M';
+const fmtDur = s => { const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
+const fmtDate = p => `${MON[+p.slice(5, 7) - 1]} ${+p.slice(8, 10)}, ${p.slice(0, 4)}`;
+const fmtTime = p => { const h = +p.slice(11, 13), m = p.slice(14, 16); return `${(h % 12) || 12}:${m} ${h < 12 ? 'AM' : 'PM'} ${p.endsWith('-07:00') ? 'PDT' : 'PST'}`; };
+const days = v => Math.floor((CUTOFF - v.ts) / 864e5);
+const hs = s => { let h = 2166136261; for (const c of s) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const rng = seed => { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+const AVC = ['#c0392b','#2e6fd6','#13896f','#8e44ad','#c25a0c','#2a8a3e','#34495e','#b03a8c','#1f7a8c','#8a6d00'];
+const avc = s => AVC[hs(s) % AVC.length];
+const ini = s => esc((s.match(/[A-Za-z0-9]/) || [s[0]])[0].toUpperCase());
+
+const PAL = {
+ official: [['#2b6ef2','#1a47b0'],['#1e96f5','#0f5fb8'],['#3d5afe','#2234b0']],
+ levels: [['#15a86d','#0a6643'],['#10a2b4','#08646e'],['#62b31a','#3a6c08']],
+ demons: [['#d42f45','#7c1426'],['#df4f2e','#882510'],['#b5234f','#62102a']],
+ creators: [['#e0439a','#8c1d5b'],['#f08a1f','#9e520a'],['#b94fd4','#6f2386']],
+ community: [['#f0ae22','#9c6a08'],['#fa6c3a','#ab3f19'],['#e8486a','#952137']],
+ guides: [['#4f63d6','#2c3a8c'],['#2f8bd4','#175891'],['#33a08b','#1c6658']],
+ more: [['#5b6b7d','#36404c'],['#2b9aa8','#176069'],['#7c5cc4','#4a3480']]
+};
+const PC = ['#b8ff3c','#ffe53c','#3cf2ff','#ff8ae2','#ffffff'];
+function label(t) {
+  const w = t.split(' '); let lines = [t];
+  if (t.length > 13 && w.length > 1) {
+    let best = 1, bd = 1e9;
+    for (let i = 1; i < w.length; i++) { const d = Math.max(w.slice(0, i).join(' ').length, w.slice(i).join(' ').length); if (d < bd) { bd = d; best = i; } }
+    lines = [w.slice(0, best).join(' '), w.slice(best).join(' ')];
+  }
+  const L = Math.max(...lines.map(l => l.length));
+  const fs = Math.min(lines.length > 1 ? 32 : 40, Math.floor(288 / (L * .56)));
+  const y0 = (lines.length > 1 ? 14 : 22) + fs;
+  return lines.map((l, i) => `<text x="16" y="${Math.round(y0 + i * fs * 1.02)}" font-family="'Lilita One',Roboto,sans-serif" font-size="${fs}" fill="#fff" stroke="#111" stroke-width="${(fs / 7).toFixed(1)}" stroke-linejoin="round" paint-order="stroke">${esc(l)}</text>`).join('');
+}
+const TH = {};
+// Self-hosted build: YouTube's real thumbnail (hqdefault is 4:3 with letterbox bars; object-fit:cover crops them off). Drawn thumbnail if it fails.
+const thumbHTML = v => EMBED ? `<img class="yt" src="https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" data-id="${esc(v.id)}">` : thumb(v);
+function thumb(v) {
+  if (TH[v.id]) return TH[v.id];
+  const r = rng(hs(v.id)), p = PAL[v.cat], [c1, c2] = p[Math.floor(r() * p.length)], off = Math.floor(r() * 40);
+  let s = `<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="320" height="180" fill="${c1}"/>`;
+  for (let i = -1; i < 6; i++) for (let j = 0; j < 2; j++) s += `<rect x="${i * 64 + off}" y="${8 + j * 64}" width="60" height="60" fill="#fff" fill-opacity="${(.04 + r() * .08).toFixed(3)}"/>`;
+  s += `<rect y="138" width="320" height="42" fill="${c2}"/>`;
+  for (let x = off % 42 - 42; x < 320; x += 42) s += `<rect x="${x + 2}" y="141" width="38" height="39" fill="#000" fill-opacity=".13"/>`;
+  s += `<rect y="136.5" width="320" height="2.5" fill="#fff" fill-opacity=".9"/>`;
+  let x = 150 + Math.floor(r() * 20);
+  while (x < 296) {
+    if (r() < .55) { const n = 1 + Math.floor(r() * 3); for (let i = 0; i < n && x < 300; i++) { s += `<path d="M${x} 137L${x + 9} 119L${x + 18} 137Z" fill="#0c0c0c" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>`; x += 18; } }
+    else { const h = 1 + Math.floor(r() * 2); for (let i = 0; i < h; i++) s += `<rect x="${x}" y="${119 - 18 * i}" width="18" height="18" fill="#0c0c0c" stroke="#fff" stroke-width="1.6"/>`; x += 18; }
+    x += 18 + Math.floor(r() * 30);
+  }
+  const pc = PC[Math.floor(r() * PC.length)], jump = r() < .5, py = jump ? 96 : 115;
+  for (let i = 1; i <= 3; i++) s += `<rect x="${58 - i * 14}" y="${py + 6 + (jump ? i * 6 : 0)}" width="10" height="10" fill="${pc}" fill-opacity="${(.5 - i * .13).toFixed(2)}"/>`;
+  s += `<g transform="rotate(${jump ? 45 : 0} 69 ${py + 11})"><rect x="58" y="${py}" width="22" height="22" fill="${pc}" stroke="#0c0c0c" stroke-width="2.5"/><rect x="64" y="${py + 6}" width="10" height="10" fill="none" stroke="#0c0c0c" stroke-width="2"/></g>`;
+  return TH[v.id] = s + label(v.lab) + '</svg>';
+}
+
+const store = {
+  get(k, d) { try { const s = localStorage.getItem(k); const x = s ? JSON.parse(s) : d; return Array.isArray(x) ? x : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let later = [], hist = [], curL = [], shown = 0;
+let q = '', year = 'all', sort = 'views', view = 'home';
+
+const ytUrl = id => 'https://www.youtube.com/watch?v=' + encodeURIComponent(id);
+const chUrl = cid => 'https://www.youtube.com/channel/' + encodeURIComponent(cid);
+const metaLine = v => `${esc(v.ch)}<br><span class="nw">${fmtV(v.views)} views</span> · <span class="nw">${fmtDate(v.pub)}</span>`;
+const card = v => `<a class="card" href="#w-${enc(v.id)}"><div class="th">${thumbHTML(v)}<span class="dur">${fmtDur(v.len)}</span>${later.includes(v.id) ? '<span class="sv">Saved</span>' : ''}</div><div class="row"><span class="av" style="background:${avc(v.ch)}" aria-hidden="true">${ini(v.ch)}</span><div><p class="ti">${esc(v.t)}</p><div class="meta">${metaLine(v)}</div></div></div></a>`;
+const mini = v => `<a class="mini" href="#w-${enc(v.id)}"><div class="th">${thumbHTML(v)}<span class="dur">${fmtDur(v.len)}</span></div><div><p class="ti">${esc(v.t)}</p><div class="meta">${metaLine(v)}</div></div></a>`;
+const sortL = L => L.slice().sort({views: (a, b) => b.views - a.views, new: (a, b) => b.ts - a.ts, old: (a, b) => a.ts - b.ts, long: (a, b) => b.len - a.len, short: (a, b) => a.len - b.len}[sort]);
+const PAGE = 60;
+const moreBtn = () => shown < curL.length ? `<div class="moreb" id="moreb"><button class="pill" data-act="more">Show ${Math.min(PAGE, curL.length - shown)} more of ${curL.length - shown}</button></div>` : '';
+function gridHTML(L) { curL = L; shown = Math.min(PAGE, L.length); return `<div class="grid" id="grid">${L.slice(0, shown).map(card).join('')}</div>${moreBtn()}`; }
+function showMore() {
+  const g = document.getElementById('grid'); if (!g || shown >= curL.length) return;
+  const next = curL.slice(shown, shown + PAGE); shown += next.length;
+  g.insertAdjacentHTML('beforeend', next.map(card).join(''));
+  const mb = document.getElementById('moreb'); if (mb) mb.outerHTML = moreBtn(); observe();
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) showMore(); }, {rootMargin: '800px'}) : null;
+function observe() { if (!io) return; io.disconnect(); const mb = document.getElementById('moreb'); if (mb) io.observe(mb); }
+const foot = () => `<footer class="foot">DashTube 2016 lists only Geometry Dash videos uploaded to YouTube before November 24, 2016 (midnight Eastern): ${V.length.toLocaleString('en-US')} of them, each with “Geometry Dash” in its title or channel name, plus a hand-picked set. Upload dates, lengths and view counts were read from each video’s YouTube page on Nov 23–24, 2026; dates are shown in Pacific time, the way YouTube records them. Thumbnails are drawn here; every video plays on YouTube. Inspired by <a href="https://hackertube.org/"><u>HackerTube</u></a>. Not affiliated with YouTube or RobTop Games.</footer>`;
+
+function capsule() {
+  const first = V.reduce((a, b) => a.ts < b.ts ? a : b), last = V.reduce((a, b) => a.ts > b.ts ? a : b);
+  const months = []; let y = +first.pub.slice(0, 4), m = +first.pub.slice(5, 7);
+  while (y < 2016 || (y === 2016 && m <= 11)) { months.push(`${y}-${String(m).padStart(2, '0')}`); if (++m > 12) { m = 1; y++; } }
+  const cnt = {}; V.forEach(v => { const k = v.pub.slice(0, 7); cnt[k] = (cnt[k] || 0) + 1; });
+  const max = Math.max(...months.map(k => cnt[k] || 0));
+  const bars = months.map(k => { const c = cnt[k] || 0; return `<i class="bar${c ? '' : ' z'}" style="height:${c ? Math.max(6, c / max * 100) : 3}%" title="${MON[+k.slice(5) - 1]} ${k.slice(0, 4)}: ${c} video${c === 1 ? '' : 's'}"></i>`; }).join('');
+  const yrs = months.map((k, i) => `<span>${i === 0 || k.endsWith('-01') ? `<em>${k.slice(0, 4)}</em>` : ''}</span>`).join('');
+  return `<section class="capsule"><div><h1>Geometry Dash on YouTube, stopped at Nov 23, 2016.</h1><p>${V.length.toLocaleString('en-US')} videos from ${MON[+first.pub.slice(5, 7) - 1]} ${first.pub.slice(0, 4)} to ${MON[+last.pub.slice(5, 7) - 1]} ${last.pub.slice(0, 4)}: RobTop’s trailers and sneak peeks, demon verifications, the main levels, creator showcases and community classics. Nothing uploaded on or after Nov 24, 2016 (Eastern time) is listed.</p><button class="pill dark" data-act="lucky">Pick a random video</button></div><div aria-hidden="true"><div class="tlh"><span>Uploads per month in this archive</span><span>Cutoff: Nov 24, 2016</span></div><div class="bars">${bars}<span class="cut"></span></div><div class="yrs">${yrs}<span class="cs2"></span></div></div></section>`;
+}
+function chips(cat) {
+  const yrs = [...new Set(V.map(v => v.pub.slice(0, 4)))].sort();
+  return `<div class="chips"><a class="chip${cat ? '' : ' on'}" href="#">All</a>${CATS.map(c => `<a class="chip${cat === c[0] ? ' on' : ''}" href="#${c[0]}">${esc(c[1])}</a>`).join('')}<span class="sep"></span><button class="chip${year === 'all' ? ' on' : ''}" data-year="all">Any year</button>${yrs.map(y => `<button class="chip${year === y ? ' on' : ''}" data-year="${y}">${y}</button>`).join('')}</div>`;
+}
+function sortSel() {
+  const opts = [['views', 'Most viewed'], ['new', 'Newest first'], ['old', 'Oldest first'], ['long', 'Longest'], ['short', 'Shortest']];
+  return `<label class="sl">Sort <select id="sort" class="sort">${opts.map(o => `<option value="${o[0]}"${sort === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('')}</select></label>`;
+}
+function setNav(k) {
+  document.querySelectorAll('.nv').forEach(a => a.classList.toggle('on', a.dataset.k === k));
+  document.getElementById('nlater').textContent = later.length ? later.length : '';
+}
+function showHome(cat) {
+  view = 'home';
+  let L = V.filter(v => (!cat || v.cat === cat) && (year === 'all' || v.pub.startsWith(year)));
+  if (q) { const t = q.toLowerCase(); L = L.filter(v => (v.t + ' ' + v.ch + ' ' + v.lab).toLowerCase().includes(t)); }
+  L = sortL(L);
+  let h = !q && !cat ? capsule() : !q ? `<div class="ph"><h1>${esc(CAT[cat][1])}</h1><p>${esc(CAT[cat][2])}</p></div>` : '';
+  h += chips(cat);
+  const lead = q ? `${L.length} result${L.length === 1 ? '' : 's'} for “${esc(q)}”${cat ? ' in ' + esc(CAT[cat][1]) : ''}` : `${L.length.toLocaleString('en-US')} video${L.length === 1 ? '' : 's'}${year === 'all' ? '' : ' from ' + year}`;
+  h += `<div class="rh"><span>${lead}</span><span class="rg">${q ? '<button class="pill" data-act="clear">Clear search</button>' : ''}${sortSel()}</span></div>`;
+  h += L.length ? gridHTML(L) : `<div class="empty"><p class="big">Nothing from before Nov 24, 2016 matches.</p><p>Try another word, a different year or a different shelf.</p></div>`;
+  app.innerHTML = h + foot(); observe();
+  setNav(cat || 'home');
+}
+function upNext(v) {
+  const a = V.filter(x => x.id !== v.id && x.cid === v.cid).sort((x, y) => y.views - x.views).slice(0, 4);
+  const b = V.filter(x => x.id !== v.id && x.cid !== v.cid && x.cat === v.cat).sort((x, y) => y.views - x.views);
+  return [...a, ...b].slice(0, 12);
+}
+function laterBtn(id) { const on = later.includes(id); return `<button class="pill${on ? ' on' : ''}" data-act="later" data-id="${esc(id)}" aria-pressed="${on}">${on ? '✓ Saved' : 'Watch later'}</button>`; }
+function showWatch(id) {
+  view = 'watch';
+  const v = BY[id], url = ytUrl(v.id), n = V.filter(x => x.cid === v.cid).length, c = CAT[v.cat];
+  hist = [id, ...hist.filter(x => x !== id)].slice(0, 60); store.set('dt_hist', hist);
+  const player = EMBED
+    ? `<div class="player"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.id)}?rel=0" title="${esc(v.t)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+    : `<a class="player" href="${url}" target="_blank" rel="noopener" aria-label="Play on YouTube: ${esc(v.t)}">${thumb(v)}<span class="sh"></span><span class="play"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span class="pcap"><span>Plays on YouTube, in a new tab</span><span>${fmtDur(v.len)}</span></span></a>`;
+  app.innerHTML = `<div class="watch"><div>
+${player}
+<h1 class="vt">${esc(v.t)}</h1>
+<div class="chan"><a class="av" href="#c-${enc(v.cid)}" style="background:${avc(v.ch)}" aria-label="${esc(v.ch)}">${ini(v.ch)}</a><div><a class="cn" href="#c-${enc(v.cid)}">${esc(v.ch)}</a><div class="cs">${n} video${n === 1 ? '' : 's'} in this archive</div></div>
+<div class="acts">${laterBtn(v.id)}<button class="pill" data-act="copy" data-url="${esc(url)}">Copy link</button><a class="pill dark" href="${url}" target="_blank" rel="noopener">Open on YouTube</a></div></div>
+<div class="info"><b>${v.views.toLocaleString('en-US')} views</b> · <b>Uploaded ${fmtDate(v.pub)}</b>
+<div class="k"><div><span>Upload time</span>${fmtTime(v.pub)}</div><div><span>Length</span>${fmtDur(v.len)}</div><div><span>Before the cutoff</span>${days(v).toLocaleString('en-US')} day${days(v) === 1 ? '' : 's'}</div><div><span>Shelf</span><a href="#${c[0]}"><u>${esc(c[1])}</u></a></div></div>
+${esc(c[2])} View count as read on Nov 23–24, 2026. <a href="${chUrl(v.cid)}" target="_blank" rel="noopener"><u>${esc(v.ch)} on YouTube</u></a></div>
+${EMBED ? '<section class="cm" id="cm" aria-live="polite"></section>' : ''}
+</div><aside class="next"><h2>Up next</h2>${upNext(v).map(mini).join('')}</aside></div>${foot()}`;
+  setNav(null);
+  if (EMBED) loadComments(v.id, true);
+}
+// ---- comments (self-hosted build only): YouTube Data API v3, key kept in this browser ----
+const ls = { get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} } };
+let ytKey = ls.get('dt_ytkey');
+const CM = {id: '', items: [], next: '', order: 'relevance', old: false, busy: false, err: ''};
+async function loadComments(id, fresh) {
+  if (fresh) Object.assign(CM, {id, items: [], next: '', busy: false, err: ''});
+  if (!ytKey || CM.busy) return renderComments();
+  CM.busy = true; renderComments();
+  const want = CM.id, q = new URLSearchParams({part: 'snippet', videoId: want, maxResults: '50', order: CM.order, textFormat: 'plainText', key: ytKey});
+  if (CM.next) q.set('pageToken', CM.next);
+  try {
+    const r = await fetch('https://www.googleapis.com/youtube/v3/commentThreads?' + q);
+    const j = await r.json().catch(() => ({}));
+    if (want !== CM.id) return;
+    if (!r.ok) {
+      const why = j.error?.errors?.[0]?.reason || '', msg = String(j.error?.message || r.status);
+      CM.err = why === 'commentsDisabled' ? 'Comments are turned off for this video.'
+        : why === 'quotaExceeded' ? 'This API key has used up its daily YouTube quota. It resets at midnight Pacific.'
+        : /API key not valid|keyInvalid/i.test(msg + why) ? 'YouTube rejected that API key. Check it, or remove it and paste another.'
+        : /referer|referrer/i.test(msg) ? 'This API key is not allowed on this website. Add this site to the key\u2019s website restrictions in Google Cloud.'
+        : 'Comments could not load: ' + msg;
+      CM.next = '';
+    } else { CM.items.push(...(j.items || [])); CM.next = j.nextPageToken || ''; CM.err = ''; }
+  } catch (e) { if (want === CM.id) CM.err = 'Comments could not load. Check your connection.'; }
+  CM.busy = false; renderComments();
+}
+function renderComments() {
+  const box = document.getElementById('cm'); if (!box) return;
+  if (!ytKey) {
+    box.innerHTML = `<h2>Comments</h2><div class="note"><b>Show YouTube comments here</b><p>YouTube only shares comments through its Data API, which needs a free API key from Google Cloud. Paste one below. It is saved in this browser only and is sent only to Google.</p><p><a href="https://developers.google.com/youtube/v3/getting-started" target="_blank" rel="noopener"><u>How to get a YouTube API key</u></a></p><form id="kf"><label class="sr" for="ki">YouTube API key</label><input id="ki" autocomplete="off" spellcheck="false" placeholder="Paste your API key"><button class="pill dark">Save key</button></form></div>`;
+    return;
+  }
+  const shown = CM.old ? CM.items.filter(t => Date.parse(t.snippet.topLevelComment.snippet.publishedAt) < CUTOFF) : CM.items;
+  const one = t => {
+    const c = t.snippet.topLevelComment.snippet, pic = /^https:\/\//.test(c.authorProfileImageUrl || '') ? c.authorProfileImageUrl : '';
+    const who = c.authorDisplayName || 'YouTube user', chan = /^https?:\/\//.test(c.authorChannelUrl || '') ? c.authorChannelUrl : '';
+    const n = t.snippet.totalReplyCount || 0, link = ytUrl(CM.id) + '&lc=' + encodeURIComponent(t.id);
+    return `<div class="ct">${pic ? `<img src="${esc(pic)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="av" style="background:${avc(who)}">${ini(who)}</span>`}<div><div class="who">${chan ? `<a href="${esc(chan)}" target="_blank" rel="noopener">${esc(who)}</a>` : esc(who)} <span>${fmtDate(c.publishedAt)}${c.updatedAt && c.updatedAt !== c.publishedAt ? ' (edited)' : ''}</span></div><p>${esc(c.textOriginal ?? c.textDisplay ?? '')}</p><div class="lk">${(c.likeCount || 0).toLocaleString('en-US')} like${c.likeCount === 1 ? '' : 's'}${n ? ` · <a href="${esc(link)}" target="_blank" rel="noopener"><u>${n.toLocaleString('en-US')} repl${n === 1 ? 'y' : 'ies'} on YouTube</u></a>` : ''}</div></div></div>`;
+  };
+  let body = '';
+  if (CM.err) body += `<div class="note">${esc(CM.err)}</div>`;
+  if (shown.length) body += shown.map(one).join('');
+  else if (!CM.busy && !CM.err) body += `<div class="note">${CM.old && CM.items.length ? `None of the ${CM.items.length} comments loaded so far were posted before Nov 24, 2016.${CM.next ? ' Load more to keep looking.' : ''}` : 'No comments yet.'}</div>`;
+  if (CM.busy) body += '<p class="cs">Loading comments\u2026</p>';
+  else if (CM.next) body += '<button class="pill" data-act="cmmore">Load more comments</button>';
+  box.innerHTML = `<h2>Comments</h2><div class="cmbar"><button class="chip${CM.order === 'relevance' ? ' on' : ''}" data-cmorder="relevance">Top</button><button class="chip${CM.order === 'time' ? ' on' : ''}" data-cmorder="time">Newest</button><button class="chip${CM.old ? ' on' : ''}" data-act="cmold" aria-pressed="${CM.old}">Only from before Nov 24, 2016</button><button class="pill" data-act="cmkey">Remove API key</button></div>${body}`;
+}
+function showChannel(cid) {
+  view = 'channel';
+  const L = sortL(V.filter(v => v.cid === cid)), ch = L[0].ch, tv = L.reduce((s, v) => s + v.views, 0);
+  app.innerHTML = `<div class="chhead"><span class="av" style="background:${avc(ch)}" aria-hidden="true">${ini(ch)}</span><div><h1>${esc(ch)}</h1><p>${L.length} video${L.length === 1 ? '' : 's'} in this archive · ${fmtV(tv)} views between them · <a href="${chUrl(cid)}" target="_blank" rel="noopener"><u>Channel on YouTube</u></a></p></div></div>${gridHTML(L)}${foot()}`; observe();
+  setNav('c-' + enc(cid));
+}
+function showList(kind) {
+  view = kind;
+  const L = (kind === 'later' ? later : hist).map(id => BY[id]).filter(Boolean);
+  const sub = kind === 'later' ? 'Videos you saved, kept in this browser only.' : 'Videos you opened here, newest first, kept in this browser only.';
+  const none = kind === 'later' ? ['Nothing saved yet.', 'Open any video and press Watch later.'] : ['No history yet.', 'Videos you open will show up here.'];
+  app.innerHTML = `<div class="ph"><h1>${kind === 'later' ? 'Watch later' : 'History'}</h1><p>${sub}</p>${kind === 'history' && L.length ? '<button class="pill" data-act="clearhist">Clear history</button>' : ''}</div>${L.length ? `<div class="list">${L.map(mini).join('')}</div>` : `<div class="empty"><p class="big">${none[0]}</p><p>${none[1]}</p></div>`}${foot()}`;
+  setNav(kind);
+}
+function route() {
+  document.body.classList.remove('dr');
+  const h = location.hash.slice(1);
+  if (h.startsWith('w-') && BY[dec(h.slice(2))]) return showWatch(dec(h.slice(2)));
+  if (h.startsWith('c-')) { const cid = dec(h.slice(2)); if (V.some(v => v.cid === cid)) return showChannel(cid); }
+  if (h === 'later' || h === 'history') return showList(h);
+  showHome(CAT[h] ? h : null);
+}
+function toast(t) { toastEl.textContent = t; toastEl.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => toastEl.classList.remove('show'), 2600); }
+
+function init(d) {
+  V = d.v.map(r => ({id: r[0], t: r[1], cid: d.c[r[2]][0], ch: d.c[r[2]][1], len: r[3], views: r[4], pub: r[5], cat: r[6], lab: r[7], ts: Date.parse(r[5])}))
+    .filter(v => Number.isFinite(v.ts) && v.ts < CUTOFF && CAT[v.cat]);
+  BY = Object.fromEntries(V.map(v => [v.id, v]));
+  later = store.get('dt_later', []).filter(id => BY[id]);
+  hist = store.get('dt_hist', []).filter(id => BY[id]);
+  const cc = {}; V.forEach(v => { cc[v.cid] = cc[v.cid] || {ch: v.ch, n: 0}; cc[v.cid].n++; });
+  document.getElementById('chans').innerHTML = Object.entries(cc).sort((a, b) => b[1].n - a[1].n || a[1].ch.localeCompare(b[1].ch)).slice(0, 10)
+  .map(([cid, o]) => `<a class="nv" data-k="c-${enc(cid)}" href="#c-${enc(cid)}"><span class="av" style="background:${avc(o.ch)}" aria-hidden="true">${ini(o.ch)}</span>${esc(o.ch)}<span class="n">${o.n}</span></a>`).join('');
+  route();
+}
+
+document.addEventListener('click', e => {
+  const co = e.target.closest('[data-cmorder]');
+  if (co) { CM.order = co.dataset.cmorder; loadComments(CM.id, true); return; }
+  const y = e.target.closest('[data-year]');
+  if (y) { year = y.dataset.year; route(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'menu') { if (innerWidth <= 1000) document.body.classList.toggle('dr'); else document.body.classList.toggle('mini'); }
+  else if (a === 'close') document.body.classList.remove('dr');
+  else if (a === 'more') showMore();
+  else if (a === 'cmmore') loadComments(CM.id, false);
+  else if (a === 'cmold') { CM.old = !CM.old; renderComments(); }
+  else if (a === 'cmkey') { ytKey = ''; ls.set('dt_ytkey', ''); loadComments(CM.id, true); }
+  else if (a === 'lucky') location.hash = 'w-' + enc(V[Math.floor(Math.random() * V.length)].id);
+  else if (a === 'clear') { q = ''; qi.value = ''; route(); }
+  else if (a === 'clearhist') { hist = []; store.set('dt_hist', hist); route(); }
+  else if (a === 'later') {
+    const id = b.dataset.id; later = later.includes(id) ? later.filter(x => x !== id) : [id, ...later]; store.set('dt_later', later);
+    b.outerHTML = laterBtn(id); setNav(null); toast(later.includes(id) ? 'Saved to Watch later' : 'Removed from Watch later');
+  }
+  else if (a === 'copy') {
+    const u = b.dataset.url;
+    try { navigator.clipboard.writeText(u).then(() => toast('Link copied'), () => toast('Copy was blocked here. Link: ' + u)); } catch (err) { toast('Copy was blocked here. Link: ' + u); }
+  }
+});
+document.addEventListener('error', e => {
+  const im = e.target;
+  if (im && im.classList && im.classList.contains('yt') && BY[im.dataset.id]) im.outerHTML = thumb(BY[im.dataset.id]);
+}, true);
+document.addEventListener('change', e => { if (e.target.id === 'sort') { sort = e.target.value; route(); } });
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'kf') return;
+  e.preventDefault(); const k = document.getElementById('ki').value.trim();
+  if (k) { ytKey = k; ls.set('dt_ytkey', k); loadComments(CM.id, true); }
+});
+document.getElementById('sf').addEventListener('submit', e => {
+  e.preventDefault(); q = qi.value.trim(); qi.blur();
+  if (view === 'home') route(); else if (location.hash && location.hash !== '#') location.hash = ''; else route();
+});
+qi.addEventListener('input', () => { if (view === 'home') { q = qi.value.trim(); route(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) { e.preventDefault(); qi.focus(); }
+  if (e.key === 'Escape') document.body.classList.remove('dr');
+});
+addEventListener('hashchange', () => { if (V.length) { route(); scrollTo(0, 0); } });
+app.innerHTML = '<div class="empty"><p class="big">Loading the archive…</p></div>';
+fetch('data.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init)
+  .catch(() => { app.innerHTML = location.protocol === 'file:' ? '<div class="empty"><p class="big">Open this page through a web server.</p><p>Browsers block it from reading its video list, and YouTube blocks the player, when it is opened as a file. See README.txt.</p></div>' : '<div class="empty"><p class="big">The video list didn’t load.</p><p>Reload the page to try again.</p></div>'; });
+}
+</script>
+</body>
+</html>
